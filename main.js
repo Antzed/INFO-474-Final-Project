@@ -417,7 +417,7 @@ function ForceGraph({
     const precip = PRECIPITATION[d.index];
     console.log("precip", precip)
     console.log(height)
-    const scale = d3.scaleLinear().domain([0, 4.5]).range([-height/3, height/2]);
+    const scale = d3.scaleLinear().domain([4.5, 0]).range([-height/2, height/3]);
     return scale(precip);
   });
   
