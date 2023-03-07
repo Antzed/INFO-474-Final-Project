@@ -88,10 +88,14 @@ Promise.all([
   console.log("offset", offset)
 
   // draw 10 verticle lines that spans across window.innerwidth and mark each line with the temperature ranging from 0 to 100
+  let tempUnit = 0;
+  let background = d3.select("#main").append("div").attr("id", "background")
   for (i = 0; i <= 10; i++){
     let unit = window.innerWidth/10
     let offsetForLine = i * unit
-    addLines(offsetForLine)
+    
+    addLines(offsetForLine, tempUnit)
+    tempUnit += 10
   }
 
   let chart = ForceGraph(graphData,{
@@ -106,7 +110,7 @@ Promise.all([
     nodeRadius: 8,
     // nodeStrength: -100
     linkStrength: 0.0001,
-  } , 0)
+  } , 0, "actual")
   console.log(chart)
   // insert chart into main div
   d3.select("#graph").remove()
@@ -117,12 +121,14 @@ Promise.all([
 })
 
 
-function addLines(offset){
+function addLines(offset, tempUnit){
   // let offset = 0;
   let position = 0;
   let final = position + offset;
 
-  let svg = d3.select("#main").append("svg")
+
+  // let svg = d3.select("#main").append("svg")
+  d3.select("#background").append("svg")
   .attr("height", 600)
   .attr("width", 2)
   .attr("id", "tempYAxis")
@@ -133,9 +139,14 @@ function addLines(offset){
   .style("background-color", "black")
   .style("opacity", "0.5")
 
-
-
-  
+  // let text = d3.select("#main").append("text")
+  d3.select("#background").append("text")
+  .attr("id", "tempYAxis")
+  .style("position", "absolute")
+  .text(tempUnit)
+  .style("top", "600px")
+  .style("left", final +"px")
+  .style("z-index", "1")
   
 }
 
@@ -145,9 +156,7 @@ function addLines(offset){
 
 
 
-
-
-
+let globalDate;
 
 // Get the slider and dateInquiring elements
 const slider = document.getElementById("myRange");
@@ -163,8 +172,11 @@ slider.addEventListener("change", function() {
 
   // Update the value of dateInquiring
   let dateInquiring = dateString;
+  // globalDate = dateInquiring;
   console.log(dateInquiring)
   renderGraph(dateInquiring)
+
+ 
 });
 
 const dateDisplay = document.getElementById("date-display");
@@ -178,8 +190,6 @@ slider.addEventListener("input", function() {
   
   dateDisplay.innerHTML = dateString;
 });
-
-
 
 
 function renderGraph(dateInquiring) {
@@ -226,10 +236,26 @@ function renderGraph(dateInquiring) {
       //make a for loop from 0 to 9
       let cityData = []
       dataFiles = files.slice(0, 10)
+      let selectedchoice;
       dataFiles.forEach(function(file, index){
         // console.log(file)
         let row = getDataFromDate(dateInquiring, file)
-        cityData.push([row.actual_mean_temp, files[10][index]["City Name ABR"],  row.actual_precipitation, ])
+        let tempData;
+        let precipData;
+        
+        if(getSelected() == "actual_mean_temp&actual_precipitation") {
+          tempData = row.actual_mean_temp
+          precipData = row.actual_precipitation
+          console.log("actual haha")
+          selectedchoice = "actual"
+        } else if (getSelected() == "record_max_temp&record_precipitation") {
+          tempData = row.record_max_temp
+          precipData = row.record_precipitation
+          console.log("record")
+          selectedchoice = "record"
+        }
+
+        cityData.push([tempData, files[10][index]["City Name ABR"],  precipData ])
       })
       
 
@@ -288,7 +314,7 @@ function renderGraph(dateInquiring) {
         nodeRadius: 8,
         // nodeStrength: -100
         linkStrength: 0.0001,
-      } , 0)
+      } , 0, selectedchoice)
       console.log(chart)
       // insert chart into main div
       d3.select("#graph").remove()
@@ -297,6 +323,53 @@ function renderGraph(dateInquiring) {
 
   })
 }
+
+function updateGraph(){
+  const slider = document.getElementById("myRange")
+  let dateInquiring = slider.value
+  // calculate the date
+  let date = new Date("2014-7-1")
+  let targetDate = date + dateInquiring * 24 * 60 * 60 * 1000
+  targetDate = new Date(targetDate)
+  renderGraph(targetDate)
+}
+
+function getSelected(){
+  let selection = document.selections.selection
+  let selected = ""
+  for (let i = 0; i < selection.length; i++) {
+    if (selection[i].checked) {
+      selected = selection[i].value
+    }
+  }
+  console.log("selected", selected)
+  return selected
+
+}
+
+
+let selection = document.selections.selection
+for (let i = 0; i < selection.length; i++) {
+  selection[i].addEventListener("change", function(){
+    console.log("changed")
+    updateGraph()
+
+    if(getSelected() == "actual_mean_temp&actual_precipitation") {
+      let background = d3.select("#background")
+      //for every text element in background, we make the text value to a number, add 1 to it, and then make it a string again
+      background.selectAll("text").data(function(d){return d3.range(0, 11)}).text(function(d){return (d*10).toString()})
+    } else if (getSelected() == "record_max_temp&record_precipitation") {
+      let background = d3.select("#background")
+      //for every text element in background, we make the text value to a number, add 1 to it, and then make it a string again
+      background.selectAll("text").data(function(d){return d3.range(0, 11)}).text(function(d){return (d*20).toString()})
+    }
+    
+  
+    
+  })
+}
+
+
 function graphDataClear(){
   graphData = {
     // nodes: [{id:"hello", group: 1}, {id:"world", group: 2}],
@@ -372,7 +445,7 @@ function ForceGraph({
   width = 640, // outer width, in pixels
   height = 400, // outer height, in pixels
   invalidation // when this promise resolves, stop the simulation
-}, offset = {}) {
+}, offset = {}, selected = "actual") {
   // Compute values.
   console.log("nodeTemp", nodeTemp)
   const N = d3.map(nodes, nodeId).map(intern);
@@ -405,22 +478,42 @@ function ForceGraph({
   if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
   if (linkStrength !== undefined) forceLink.strength(linkStrength);
 
-  const forceX = d3.forceX().x(d => {
-    const temp = TEMP[d.index];
-    console.log("temp", TEMP)
-    const scale = d3.scaleLinear().domain([1, 99]).range([-width/2+10, width/2-10]);
-    return scale(temp);
-  });
+  let forceX, forceY;
 
-  
-  const forceY = d3.forceY().y(d => {
-    const precip = PRECIPITATION[d.index];
-    console.log("precip", precip)
-    console.log(height)
-    const scale = d3.scaleLinear().domain([4.5, 0]).range([-height/2, height/3]);
-    return scale(precip);
-  });
-  
+  if (selected == "actual") {
+
+    forceX = d3.forceX().x(d => {
+      const temp = TEMP[d.index];
+      console.log("temp", TEMP)
+      const scale = d3.scaleLinear().domain([1, 99]).range([-width/2+10, width/2-10]);
+      return scale(temp);
+    });
+
+    
+    forceY = d3.forceY().y(d => {
+      const precip = PRECIPITATION[d.index];
+      console.log("precip", precip)
+      console.log(height)
+      const scale = d3.scaleLinear().domain([4.5, 0]).range([-height/2, height/3]);
+      return scale(precip);
+    });
+  } else if (selected == "record") {
+    forceX = d3.forceX().x(d => {
+      const temp = TEMP[d.index];
+      console.log("temp", TEMP)
+      const scale = d3.scaleLinear().domain([1, 200]).range([-width/2+10, width/2-10]);
+      return scale(temp);
+    });
+
+    
+    forceY = d3.forceY().y(d => {
+      const precip = PRECIPITATION[d.index];
+      console.log("precip", precip)
+      console.log(height)
+      const scale = d3.scaleLinear().domain([20, 0]).range([-height/2, height/3]);
+      return scale(precip);
+    });
+  }
 
   const simulation = d3.forceSimulation(nodes)
       .force("link", forceLink)
