@@ -23,7 +23,7 @@ Promise.all([
   d3.csv("Weather Data/cities-gps.csv"),
 ]).then(function(files) {
 
-  let dateInquiring = "2014-7-1"
+  let dateInquiring = "2014-12-14"
   console.log(files)
   //for each City Name ABR in files[10], we add them in to graphData.nodes
   //we also make the group equals to index of the city in files[10]
@@ -38,7 +38,19 @@ Promise.all([
   dataFiles = files.slice(0, 10)
   dataFiles.forEach(function(file, index){
     // console.log(file)
-    cityData.push([getDataFromDate(dateInquiring, file).actual_mean_temp, files[10][index]["City Name ABR"]])
+    let row = getDataFromDate(dateInquiring, file)
+    cityData.push([row.actual_mean_temp, files[10][index]["City Name ABR"],  row.actual_precipitation, ])
+  })
+  
+
+  graphData.nodes.forEach(function(node){
+    // node.temperature = the number in city in cityData where the city name is equal to node.id
+    cityData.forEach(function(city){
+      if (city[1] == node.id) {
+        node.temperature = city[0]
+        node.precipitation = city[2]
+      }
+    })
   })
   console.log(cityData)
   // get the city names and the tempearture between 25 to 75 percentile
@@ -69,28 +81,66 @@ Promise.all([
 
   let meanTemp = d3.mean(cityData, function(d){return d[0]})
   let offsetUnit = window.innerWidth/100
-  let relativeTo50 = meanTemp - 55
+  let relativeTo50 = meanTemp - 50
   let offset = relativeTo50 * offsetUnit
   console.log("meanTemp", meanTemp)
   d3.select("#temp-display").text("Mean temperatue:", meanTemp)
   console.log("offset", offset)
 
+  // draw 10 verticle lines that spans across window.innerwidth and mark each line with the temperature ranging from 0 to 100
+  for (i = 0; i <= 10; i++){
+    let unit = window.innerWidth/10
+    let offsetForLine = i * unit
+    addLines(offsetForLine)
+  }
+
   let chart = ForceGraph(graphData,{
     nodeId: d => d.id,
     nodeGroup: d => d.group,
     nodeTitle: d => `${d.id}\n${d.group}`,
+    nodeTemp: d => d.temperature,
+    nodePrecipitation: d => d.precipitation,
     linkStrokeWidth: l => Math.sqrt(l.value),
     width: window.innerWidth,
     height: 600,
     nodeRadius: 8,
-  } , offset)
+    // nodeStrength: -100
+    linkStrength: 0.0001,
+  } , 0)
   console.log(chart)
   // insert chart into main div
   d3.select("#graph").remove()
   d3.select("#main").append("div").attr("id", "graph").node().appendChild(chart)
 
 
+
 })
+
+
+function addLines(offset){
+  // let offset = 0;
+  let position = 0;
+  let final = position + offset;
+
+  let svg = d3.select("#main").append("svg")
+  .attr("height", 600)
+  .attr("width", 2)
+  .attr("id", "tempYAxis")
+  .style("position", "absolute")
+  .style("top", "0px")
+  .style("left", final +"px")
+  .style("z-index", "-1")
+  .style("background-color", "black")
+  .style("opacity", "0.5")
+
+
+
+  
+  
+}
+
+
+
 
 
 
@@ -151,15 +201,18 @@ function renderGraph(dateInquiring) {
       let maxTemp = -Infinity
       files.forEach(function(file){
         file.forEach(function(data){
-          if (data.actual_mean_temp < minTemp) {
-            minTemp = data.actual_mean_temp
+          if (data.actual_precipitation < minTemp) {
+            minTemp = data.actual_precipitation
           }
-          if (data.actual_mean_temp > maxTemp) {
-            maxTemp = data.actual_mean_temp
+          if (data.actual_precipitation > maxTemp) {
+            maxTemp = data.actual_precipitation
           }
         })
       })
       console.log("min, max", minTemp, maxTemp)
+
+
+
       graphDataClear()
       console.log(files)
       //for each City Name ABR in files[10], we add them in to graphData.nodes
@@ -175,9 +228,23 @@ function renderGraph(dateInquiring) {
       dataFiles = files.slice(0, 10)
       dataFiles.forEach(function(file, index){
         // console.log(file)
-        cityData.push([getDataFromDate(dateInquiring, file).actual_mean_temp, files[10][index]["City Name ABR"]])
+        let row = getDataFromDate(dateInquiring, file)
+        cityData.push([row.actual_mean_temp, files[10][index]["City Name ABR"],  row.actual_precipitation, ])
       })
-      console.log(cityData)
+      
+
+      graphData.nodes.forEach(function(node){
+        // node.temperature = the number in city in cityData where the city name is equal to node.id
+        cityData.forEach(function(city){
+          if (city[1] == node.id) {
+            node.temperature = city[0]
+            node.precipitation = city[2]
+          }
+        })
+      })
+
+      console.log("citydata", cityData)
+
       // get the city names and the tempearture between 25 to 75 percentile
       let q1 = d3.quantile(cityData, 0.25, function(d){return d[0]})
       
@@ -196,9 +263,6 @@ function renderGraph(dateInquiring) {
       console.log(temperatures)
 
       graphData.links.push( DPConnectNode(filteredData))
-      // cityNames.forEach(function(city, index){
-      //   graphData.nodes.push({id: city, group: index})
-      // })
       console.log(graphData)
 
       // get rid of the undefined in graphData.links
@@ -206,7 +270,7 @@ function renderGraph(dateInquiring) {
 
       let meanTemp = d3.mean(cityData, function(d){return d[0]})
       let offsetUnit = window.innerWidth/100
-      let relativeTo50 = meanTemp - 55
+      let relativeTo50 = meanTemp - 50
       let offset = relativeTo50 * offsetUnit
       console.log("meanTemp", meanTemp)
       d3.select("#temp-display").text("Mean temperatue: " +meanTemp + " °F" )
@@ -216,12 +280,15 @@ function renderGraph(dateInquiring) {
         nodeId: d => d.id,
         nodeGroup: d => d.group,
         nodeTitle: d => `${d.id}\n${d.group}`,
+        nodeTemp: d => d.temperature,
+        nodePrecipitation: d => d.precipitation,
         linkStrokeWidth: l => Math.sqrt(l.value),
         width: window.innerWidth,
         height: 600,
         nodeRadius: 8,
-        // linkStrength: 0.0001,
-      } , offset)
+        // nodeStrength: -100
+        linkStrength: 0.0001,
+      } , 0)
       console.log(chart)
       // insert chart into main div
       d3.select("#graph").remove()
@@ -286,6 +353,8 @@ function ForceGraph({
   nodeGroup, // given d in nodes, returns an (ordinal) value for color
   nodeGroups, // an array of ordinal values representing the node groups
   nodeTitle, // given d in nodes, a title string
+  nodeTemp = d => d.tempearture, // given d in nodes, a temperature string
+  nodePrecipitation = d => d.precipitation, // given d in nodes, a precipitation string
   nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
   nodeStroke = "#fff", // node stroke color
   nodeStrokeWidth = 1.5, // node stroke width, in pixels
@@ -305,11 +374,18 @@ function ForceGraph({
   invalidation // when this promise resolves, stop the simulation
 }, offset = {}) {
   // Compute values.
+  console.log("nodeTemp", nodeTemp)
   const N = d3.map(nodes, nodeId).map(intern);
+  const Temp = d3.map(nodes, nodeTemp).map(intern);
+  const Precipitation = d3.map(nodes, nodePrecipitation).map(intern);
   const LS = d3.map(links, linkSource).map(intern);
   const LT = d3.map(links, linkTarget).map(intern);
   if (nodeTitle === undefined) nodeTitle = (_, i) => N[i];
   const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
+  if (nodeTemp === undefined) nodeTemp = (_, i) => Temp[i];
+  const TEMP = nodeTemp == null ? null : d3.map(nodes, nodeTemp);
+  if (nodePrecipitation === undefined) nodePrecipitation = (_, i) => Precipitation[i];
+  const PRECIPITATION = nodePrecipitation == null ? null : d3.map(nodes, nodePrecipitation);
   const G = nodeGroup == null ? null : d3.map(nodes, nodeGroup).map(intern);
   const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
 
@@ -329,11 +405,28 @@ function ForceGraph({
   if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
   if (linkStrength !== undefined) forceLink.strength(linkStrength);
 
+  const forceX = d3.forceX().x(d => {
+    const temp = TEMP[d.index];
+    console.log("temp", TEMP)
+    const scale = d3.scaleLinear().domain([1, 99]).range([-width/2+10, width/2-10]);
+    return scale(temp);
+  });
+
+  
+  const forceY = d3.forceY().y(d => {
+    const precip = PRECIPITATION[d.index];
+    console.log("precip", precip)
+    console.log(height)
+    const scale = d3.scaleLinear().domain([0, 4.5]).range([-height/3, height/2]);
+    return scale(precip);
+  });
+  
+
   const simulation = d3.forceSimulation(nodes)
       .force("link", forceLink)
       .force("charge", forceNode)
-      .force("x", d3.forceX())
-      .force("y", d3.forceY())
+      .force("x", forceX)
+      .force("y", forceY)
       .on("tick", ticked);
 
   const svg = d3.create("svg")
@@ -365,7 +458,16 @@ function ForceGraph({
       .call(drag(simulation));
 
   if (G) node.attr("fill", ({index: i}) => color(G[i]));
-  if (T) node.append("title").text(({index: i}) => T[i]);
+  if (T) node.append("title").text(({index: i}) => `${T[i]}\nTemperature: ${TEMP[i]}\nPrecipitation: ${PRECIPITATION[i]}` );
+  // nPrecipitation: ${PRECIPITATION[i]}
+  console.log("T",  T)
+  
+  // if (T) {
+  //   node.append("title").text((d, i) => {
+  //     const temperature = nodes[i].temperature; // get temperature value
+  //     return `${T[i]}\nTemperature: ${temperature}`; // add temperature to the tooltip
+  //   });
+  // }
 
   // Handle invalidation.
   if (invalidation != null) invalidation.then(() => simulation.stop());
