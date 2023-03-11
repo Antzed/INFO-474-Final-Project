@@ -108,7 +108,7 @@ Promise.all([
     width: window.innerWidth,
     height: 600,
     nodeRadius: 8,
-    // nodeStrength: -100
+    // nodeStrength: -50,
     linkStrength: 0.0001,
   } , 0, "actual")
   console.log(chart)
@@ -312,8 +312,8 @@ function renderGraph(dateInquiring) {
         width: window.innerWidth,
         height: 600,
         nodeRadius: 8,
-        // nodeStrength: -100
-        linkStrength: 0.0001,
+        nodeStrength: -20,
+        linkStrength: 0.00001,
       } , 0, selectedchoice)
       console.log(chart)
       // insert chart into main div
@@ -447,7 +447,7 @@ function ForceGraph({
   invalidation // when this promise resolves, stop the simulation
 }, offset = {}, selected = "actual") {
   // Compute values.
-  console.log("nodeTemp", nodeTemp)
+  console.log("render once")
   const N = d3.map(nodes, nodeId).map(intern);
   const Temp = d3.map(nodes, nodeTemp).map(intern);
   const Precipitation = d3.map(nodes, nodePrecipitation).map(intern);
@@ -475,6 +475,12 @@ function ForceGraph({
   // Construct the forces.
   const forceNode = d3.forceManyBody();
   const forceLink = d3.forceLink(links).id(({index: i}) => N[i]);
+  // const forceLink = d3.forceLink(links).id(({index: i}) => N[i]).strength(d => {
+  //   const w = W ? W.get(d) : linkStrokeWidth;
+  //   return linkStrength ? linkStrength(d) * w : 1 / Math.min(count.get(d.source), count.get(d.target));
+  // });
+  console.log("forceLink", forceLink)
+
   if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
   if (linkStrength !== undefined) forceLink.strength(linkStrength);
 
