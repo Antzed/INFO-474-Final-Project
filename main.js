@@ -97,6 +97,11 @@ Promise.all([
     addLines(offsetForLine, tempUnit)
     tempUnit += 10
   }
+  
+  //render the text
+  renderText()
+ 
+ 
 
   let chart = ForceGraph(graphData,{
     nodeId: d => d.id,
@@ -116,9 +121,9 @@ Promise.all([
   d3.select("#graph").remove()
   d3.select("#main").append("div").attr("id", "graph").node().appendChild(chart)
 
-
-
+  renderColor()
 })
+
 
 
 function addLines(offset, tempUnit){
@@ -150,6 +155,122 @@ function addLines(offset, tempUnit){
   
 }
 
+
+function renderText(){
+  //left side of the screen should display cold and right side of the screen should display hot
+  //top of the screen should display wet and bottom of the screen should display dry
+  d3.select("#main").append("text").text("Cold").style("position", "absolute").style("top", window.innerHeight/3+ "px").style("left", "10px")
+  d3.select("#main").append("text").text("Hot").style("position", "absolute").style("top", window.innerHeight/3+ "px").style("right", "10px")
+  d3.select("#main").append("text").text("Wet").style("position", "absolute").style("top", "10px").style("right", window.innerWidth/2+"px")
+  d3.select("#main").append("text").text("Dry").style("position", "absolute").style("bottom", window.innerHeight/3 + "px").style("right", window.innerWidth/2+"px")
+  // d3.select("#main").append("text").text("Dry").style("position", "absolute").style("bottom", "0px").style("left", "0px")
+}
+
+
+function renderColor(){
+// // Append an SVG element to the background div
+// const svg = d3.select("#graph")
+//   .append('svg')
+//   .attr('width', '100%')
+//   .attr('height', '100%')
+//   .style('position', 'absolute')
+//   .style('top', 0)
+//   .style('left', 0)
+//   .style('z-index', '-10')
+
+// // Define the gradient
+// const gradient = svg.append('defs')
+//   .append('linearGradient')
+//   .attr('id', 'gradient')
+//   .attr('gradientUnits', 'userSpaceOnUse')
+//   .attr('x1', '0%')
+//   .attr('y1', '0%')
+//   .attr('x2', '100%')
+//   .attr('y2', '100%');
+
+// gradient.append('stop')
+//   .attr('offset', '50%')
+//   .attr('stop-color', '#ffffff');
+
+// gradient.append('stop')
+//   .attr('offset', '100%')
+//   .attr('stop-color', '#E74C3C');
+
+// // Append a rect element to the SVG element
+// svg.append('rect')
+//   .attr('x', 0)
+//   .attr('y', 0)
+//   .attr('width', '100%')
+//   .attr('height', '600px')
+//   .attr('fill', 'url(#gradient)')
+//   .style("z-index", "-10");
+
+// Append an SVG element to the background div
+const svg = d3.select("#graph")
+  .append('svg')
+  .attr('width', '100%')
+  .attr('height', '100%')
+  .style('position', 'absolute')
+  .style('top', 0)
+  .style('left', 0)
+  .style('z-index', '-10')
+
+// Define the blue-to-transparent gradient for the top edge
+const blueGradient = svg.append('defs')
+  .append('linearGradient')
+  .attr('id', 'blue-gradient')
+  .attr('gradientUnits', 'userSpaceOnUse')
+  .attr('x1', '0%')
+  .attr('y1', '0%')
+  .attr('x2', '0%')
+  .attr('y2', '90%');
+
+blueGradient.append('stop')
+  .attr('offset', '0%')
+  .attr('stop-color', 'rgba(153, 214, 255, 0.5)');
+
+blueGradient.append('stop')
+  .attr('offset', '100%')
+  .attr('stop-color', 'transparent');
+
+// Append a rect element to the SVG element for the top glow
+svg.append('rect')
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('width', '100%')
+  .attr('height', '600px')
+  .attr('fill', 'url(#blue-gradient)')
+  .style('z-index', '-5');
+
+// Define the red-to-transparent gradient for the right edge
+const redGradient = svg.append('defs')
+  .append('linearGradient')
+  .attr('id', 'red-gradient')
+  .attr('gradientUnits', 'userSpaceOnUse')
+  .attr('x1', '10%')
+  .attr('y1', '0%')
+  .attr('x2', '100%')
+  .attr('y2', '0%');
+
+redGradient.append('stop')
+  .attr('offset', '0%')
+  .attr('stop-color', 'transparent');
+
+redGradient.append('stop')
+  .attr('offset', '100%')
+  .attr('stop-color', 'rgba(255, 153, 153, 0.5)');
+
+// Append a rect element to the SVG element for the right glow
+svg.append('rect')
+  .attr('x', '10%')
+  .attr('y', 0)
+  .attr('width', '90%')
+  .attr('height', '600px')
+  .attr('fill', 'url(#red-gradient)')
+  .style('z-index', '-5');
+
+
+}
 
 
 
@@ -302,6 +423,8 @@ function renderGraph(dateInquiring) {
       d3.select("#temp-display").text("Mean temperatue: " +meanTemp + " °F" )
       console.log("offset", offset)
 
+     
+
       let chart = ForceGraph(graphData,{
         nodeId: d => d.id,
         nodeGroup: d => d.group,
@@ -319,6 +442,7 @@ function renderGraph(dateInquiring) {
       // insert chart into main div
       d3.select("#graph").remove()
       d3.select("#main").append("div").attr("id", "graph").node().appendChild(chart)
+      renderColor()
 
 
   })
@@ -394,18 +518,29 @@ function getDataFromDate(date, file){
 }
 
 function DPConnectNode(filteredData){
-  
+  console.log("filteredData at dp connect", filteredData)
   //get all combinations of city name in filteredData using flatmap
   let combinations = filteredData.flatMap(function(d, index){
     let rest = filteredData.slice(index + 1)
+    console.log("rest", rest)
     return rest.map(function(e){
       // the bigger the difference, the less likely they are connected
-      let difference = 1/(Math.abs(d[0] - e[0])+0.2)*5
+      // let difference = 1/(Math.abs(d[0] - e[0])+0.2)*5
+
+      // calculate difference at d[0] and e[0]
+      let difference1 = 1/(Math.abs(d[0] - e[0])+0.25)
+      
+      // calculate difference at d[2] and e[2]
+      let difference2 = 1/(Math.abs(d[2] - e[2])+0.25)
+      
+      // return the sum of the two differences
+      let difference = difference1 * difference2 * 5
+      console.log("difference", difference)
       return [d[1], e[1], difference]
 
     })
   })
-  console.log(combinations)
+  console.log("combinations", combinations)
   // for each combination, push to graphData.links
   combinations.forEach(function(combination){
     graphData.links.push({source: combination[0], target: combination[1], value: combination[2]})
@@ -429,14 +564,14 @@ function ForceGraph({
   nodeTemp = d => d.tempearture, // given d in nodes, a temperature string
   nodePrecipitation = d => d.precipitation, // given d in nodes, a precipitation string
   nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
-  nodeStroke = "#fff", // node stroke color
+  nodeStroke = "#000", // node stroke color
   nodeStrokeWidth = 1.5, // node stroke width, in pixels
   nodeStrokeOpacity = 1, // node stroke opacity
   nodeRadius = 5, // node radius, in pixels
   nodeStrength,
   linkSource = ({source}) => source, // given d in links, returns a node identifier string
   linkTarget = ({target}) => target, // given d in links, returns a node identifier string
-  linkStroke = "#999", // link stroke color
+  linkStroke = "#000", // link stroke color
   linkStrokeOpacity = 0.6, // link stroke opacity
   linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
   linkStrokeLinecap = "round", // link stroke linecap
