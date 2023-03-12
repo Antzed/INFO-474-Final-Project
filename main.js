@@ -159,51 +159,98 @@ function addLines(offset, tempUnit){
 function renderText(){
   //left side of the screen should display cold and right side of the screen should display hot
   //top of the screen should display wet and bottom of the screen should display dry
-  d3.select("#main").append("text").text("Cold").style("position", "absolute").style("top", window.innerHeight/3+ "px").style("left", "10px")
+  d3.select("#main").append("text").text("Cold").style("position", "absolute").style("top", window.innerHeight/3+ "px").style("left", "10px").style("z-index", "100")
   d3.select("#main").append("text").text("Hot").style("position", "absolute").style("top", window.innerHeight/3+ "px").style("right", "10px")
   d3.select("#main").append("text").text("Wet").style("position", "absolute").style("top", "10px").style("right", window.innerWidth/2+"px")
-  d3.select("#main").append("text").text("Dry").style("position", "absolute").style("bottom", window.innerHeight/3 + "px").style("right", window.innerWidth/2+"px")
+  d3.select("#main").append("text").text("Dry").style("position", "absolute").style("top", "575px").style("right", window.innerWidth/2+"px")
   // d3.select("#main").append("text").text("Dry").style("position", "absolute").style("bottom", "0px").style("left", "0px")
+
 }
 
 
+// // Define the color scale
+// var colorScale = d3.scaleOrdinal()
+//   .domain(["Houston, Texas(KHOU)", "Los Angeles, California(CQT)", "Pheonix, Arizona(PHX)", "Jacksonville, Florida(JAX)", "Charlotte, North Carolina(CLT)", "Seattle, Washington(KSEA)", "Chicago, Illinois(MDW)", "Indianapolis, Indiana(IND)", "New York, New York(KNYC)", "Philadelphia, Pennsylvania(PHL)"])
+//   .range(["#e15759", "#59a14f", "#bab0ab", "#af7aa1", "#76b7b2", "#4e79a7", "#ff9da7", "#edc949", "#f28e2c", "#9c755f"]);
+
+// // Select the SVG element
+// //location of the legend should be at the bottom right of the screen
+// var svg = d3.select("#legend").append("svg")
+//   .style("float", "right")
+  
+
+// // Add a group element for the legend
+// var legend = svg.append("g")
+//   .attr("class", "legend")
+//   .attr("transform", "translate(20,20)");
+
+// // Add a rectangle and text element for each color
+// var legendItems = legend.selectAll(".legend-item")
+//   .data(colorScale.domain())
+//   .enter()
+//   .append("g")
+//   .attr("class", "legend-item")
+//   .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+// legendItems.append("rect")
+//   .attr("x", 0)
+//   .attr("y", 0)
+//   .attr("width", 15)
+//   .attr("height", 15)
+//   .style("fill", function(d) { return colorScale(d); });
+
+// legendItems.append("text")
+//   .attr("x", 20)
+//   .attr("y", 10)
+//   .attr("dy", "0.35em")
+//   .text(function(d) { return d; });
+
+// Define the color scale
+var colorScale = d3.scaleOrdinal()
+  .domain(["Houston, Texas(KHOU)", "Los Angeles, California(CQT)", "Pheonix, Arizona(PHX)", "Jacksonville, Florida(JAX)", "Charlotte, North Carolina(CLT)", "Seattle, Washington(KSEA)", "Chicago, Illinois(MDW)", "Indianapolis, Indiana(IND)", "New York, New York(KNYC)", "Philadelphia, Pennsylvania(PHL)"])
+  .range(["#e15759", "#59a14f", "#bab0ab", "#af7aa1", "#76b7b2", "#4e79a7", "#ff9da7", "#edc949", "#f28e2c", "#9c755f"]);
+
+// Select the SVG element
+// location of the legend should be at the bottom right of the screen
+var svg = d3.select("#legend").append("svg")
+  .attr("width", window.innerWidth/2.5)
+  .style("float", "right")
+
+// Add a group element for the legend
+var legend = svg.append("g")
+  .attr("class", "legend")
+  .attr("transform", "translate(20,20)");
+
+// Add a rectangle and text element for each color
+var legendItems = legend.selectAll(".legend-item")
+  .data(colorScale.domain())
+  .enter()
+  .append("g")
+  .attr("class", "legend-item")
+  .attr("transform", function(d, i) { 
+    var row = i % 5;
+    var col = Math.floor(i / 5);
+    return "translate(" + col * 300 + "," + row * 25 + ")"; 
+  });
+
+legendItems.append("rect")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("width", 15)
+  .attr("height", 15)
+  .style("fill", function(d) { return colorScale(d); });
+
+legendItems.append("text")
+  .attr("x", 20)
+  .attr("y", 10)
+  .attr("dy", "0.35em")
+  .text(function(d) { return d; });
+
+
+
+
+
 function renderColor(){
-// // Append an SVG element to the background div
-// const svg = d3.select("#graph")
-//   .append('svg')
-//   .attr('width', '100%')
-//   .attr('height', '100%')
-//   .style('position', 'absolute')
-//   .style('top', 0)
-//   .style('left', 0)
-//   .style('z-index', '-10')
-
-// // Define the gradient
-// const gradient = svg.append('defs')
-//   .append('linearGradient')
-//   .attr('id', 'gradient')
-//   .attr('gradientUnits', 'userSpaceOnUse')
-//   .attr('x1', '0%')
-//   .attr('y1', '0%')
-//   .attr('x2', '100%')
-//   .attr('y2', '100%');
-
-// gradient.append('stop')
-//   .attr('offset', '50%')
-//   .attr('stop-color', '#ffffff');
-
-// gradient.append('stop')
-//   .attr('offset', '100%')
-//   .attr('stop-color', '#E74C3C');
-
-// // Append a rect element to the SVG element
-// svg.append('rect')
-//   .attr('x', 0)
-//   .attr('y', 0)
-//   .attr('width', '100%')
-//   .attr('height', '600px')
-//   .attr('fill', 'url(#gradient)')
-//   .style("z-index", "-10");
 
 // Append an SVG element to the background div
 const svg = d3.select("#graph")
@@ -651,7 +698,7 @@ function ForceGraph({
       const precip = PRECIPITATION[d.index];
       console.log("precip", precip)
       console.log(height)
-      const scale = d3.scaleLinear().domain([20, 0]).range([-height/2, height/3]);
+      const scale = d3.scaleLinear().domain([13, 0]).range([-height/2, height/3]);
       return scale(precip);
     });
   }
@@ -695,13 +742,6 @@ function ForceGraph({
   if (T) node.append("title").text(({index: i}) => `${T[i]}\nTemperature: ${TEMP[i]}\nPrecipitation: ${PRECIPITATION[i]}` );
   // nPrecipitation: ${PRECIPITATION[i]}
   console.log("T",  T)
-  
-  // if (T) {
-  //   node.append("title").text((d, i) => {
-  //     const temperature = nodes[i].temperature; // get temperature value
-  //     return `${T[i]}\nTemperature: ${temperature}`; // add temperature to the tooltip
-  //   });
-  // }
 
   // Handle invalidation.
   if (invalidation != null) invalidation.then(() => simulation.stop());
