@@ -168,43 +168,6 @@ function renderText(){
 }
 
 
-// // Define the color scale
-// var colorScale = d3.scaleOrdinal()
-//   .domain(["Houston, Texas(KHOU)", "Los Angeles, California(CQT)", "Pheonix, Arizona(PHX)", "Jacksonville, Florida(JAX)", "Charlotte, North Carolina(CLT)", "Seattle, Washington(KSEA)", "Chicago, Illinois(MDW)", "Indianapolis, Indiana(IND)", "New York, New York(KNYC)", "Philadelphia, Pennsylvania(PHL)"])
-//   .range(["#e15759", "#59a14f", "#bab0ab", "#af7aa1", "#76b7b2", "#4e79a7", "#ff9da7", "#edc949", "#f28e2c", "#9c755f"]);
-
-// // Select the SVG element
-// //location of the legend should be at the bottom right of the screen
-// var svg = d3.select("#legend").append("svg")
-//   .style("float", "right")
-  
-
-// // Add a group element for the legend
-// var legend = svg.append("g")
-//   .attr("class", "legend")
-//   .attr("transform", "translate(20,20)");
-
-// // Add a rectangle and text element for each color
-// var legendItems = legend.selectAll(".legend-item")
-//   .data(colorScale.domain())
-//   .enter()
-//   .append("g")
-//   .attr("class", "legend-item")
-//   .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-// legendItems.append("rect")
-//   .attr("x", 0)
-//   .attr("y", 0)
-//   .attr("width", 15)
-//   .attr("height", 15)
-//   .style("fill", function(d) { return colorScale(d); });
-
-// legendItems.append("text")
-//   .attr("x", 20)
-//   .attr("y", 10)
-//   .attr("dy", "0.35em")
-//   .text(function(d) { return d; });
-
 // Define the color scale
 var colorScale = d3.scaleOrdinal()
   .domain(["Houston, Texas(KHOU)", "Los Angeles, California(CQT)", "Pheonix, Arizona(PHX)", "Jacksonville, Florida(JAX)", "Charlotte, North Carolina(CLT)", "Seattle, Washington(KSEA)", "Chicago, Illinois(MDW)", "Indianapolis, Indiana(IND)", "New York, New York(KNYC)", "Philadelphia, Pennsylvania(PHL)"])
@@ -657,10 +620,7 @@ function ForceGraph({
   // Construct the forces.
   const forceNode = d3.forceManyBody();
   const forceLink = d3.forceLink(links).id(({index: i}) => N[i]);
-  // const forceLink = d3.forceLink(links).id(({index: i}) => N[i]).strength(d => {
-  //   const w = W ? W.get(d) : linkStrokeWidth;
-  //   return linkStrength ? linkStrength(d) * w : 1 / Math.min(count.get(d.source), count.get(d.target));
-  // });
+
   console.log("forceLink", forceLink)
 
   if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
