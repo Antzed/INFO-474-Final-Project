@@ -148,7 +148,7 @@ function addLines(offset, tempUnit){
   d3.select("#background").append("text")
   .attr("id", "tempYAxis")
   .style("position", "absolute")
-  .text(tempUnit + "F°")
+  .text(tempUnit + "°F")
   .style("top", "600px")
   .style("left", final +"px")
   .style("z-index", "1")
