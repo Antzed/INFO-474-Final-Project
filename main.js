@@ -24,7 +24,7 @@ Promise.all([
 ]).then(function(files) {
 
   let dateInquiring = "2014-12-14"
-  console.log(files)
+  // console.log(files)
   //for each City Name ABR in files[10], we add them in to graphData.nodes
   //we also make the group equals to index of the city in files[10]
   //we also make the id equals to the city name
@@ -32,7 +32,7 @@ Promise.all([
       graphData.nodes.push({id: city["City Name ABR"], group: index})
       // console.log("hello")
   })
-  console.log(graphData)
+  // console.log(graphData)
   //make a for loop from 0 to 9
   let cityData = []
   dataFiles = files.slice(0, 10)
@@ -52,12 +52,12 @@ Promise.all([
       }
     })
   })
-  console.log(cityData)
+  // console.log(cityData)
   // get the city names and the tempearture between 25 to 75 percentile
   let q1 = d3.quantile(cityData, 0.25, function(d){return d[0]})
   
   let q3 = d3.quantile(cityData, 0.75, function(d){return d[0]})
-  console.log(q1, q3)
+  // console.log(q1, q3)
   
   
 
@@ -67,14 +67,14 @@ Promise.all([
   });
   var cityNames = filteredData.map(function(d) { return d[1]; });
   var temperatures = filteredData.map(function(d) { return d[0]; });
-  console.log(cityNames)
-  console.log(temperatures)
+  // console.log(cityNames)
+  // console.log(temperatures)
 
   graphData.links.push( DPConnectNode(filteredData))
   // cityNames.forEach(function(city, index){
   //   graphData.nodes.push({id: city, group: index})
   // })
-  console.log(graphData)
+  // console.log(graphData)
 
   // get rid of the undefined in graphData.links
   graphData.links = graphData.links.filter(function(d){return d != undefined})
@@ -83,9 +83,9 @@ Promise.all([
   let offsetUnit = window.innerWidth/100
   let relativeTo50 = meanTemp - 50
   let offset = relativeTo50 * offsetUnit
-  console.log("meanTemp", meanTemp)
+  // console.log("meanTemp", meanTemp)
   d3.select("#temp-display").text("Mean temperatue:", meanTemp)
-  console.log("offset", offset)
+  // console.log("offset", offset)
 
   // draw 10 verticle lines that spans across window.innerwidth and mark each line with the temperature ranging from 0 to 100
   let tempUnit = 0;
@@ -116,7 +116,7 @@ Promise.all([
     // nodeStrength: -50,
     linkStrength: 0.0001,
   } , 0, "actual")
-  console.log(chart)
+  // console.log(chart)
   // insert chart into main div
   d3.select("#graph").remove()
   d3.select("#main").append("div").attr("id", "graph").node().appendChild(chart)
@@ -148,7 +148,7 @@ function addLines(offset, tempUnit){
   d3.select("#background").append("text")
   .attr("id", "tempYAxis")
   .style("position", "absolute")
-  .text(tempUnit)
+  .text(tempUnit + "F°")
   .style("top", "600px")
   .style("left", final +"px")
   .style("z-index", "1")
@@ -304,7 +304,7 @@ slider.addEventListener("change", function() {
   // Update the value of dateInquiring
   let dateInquiring = dateString;
   // globalDate = dateInquiring;
-  console.log(dateInquiring)
+  // console.log(dateInquiring)
   renderGraph(dateInquiring)
 
  
@@ -350,12 +350,12 @@ function renderGraph(dateInquiring) {
           }
         })
       })
-      console.log("min, max", minTemp, maxTemp)
+      // console.log("min, max", minTemp, maxTemp)
 
 
 
       graphDataClear()
-      console.log(files)
+      // console.log(files)
       //for each City Name ABR in files[10], we add them in to graphData.nodes
       //we also make the group equals to index of the city in files[10]
       //we also make the id equals to the city name
@@ -363,7 +363,7 @@ function renderGraph(dateInquiring) {
           graphData.nodes.push({id: city["City Name ABR"], group: index})
           // console.log("hello")
       })
-      console.log(graphData)
+      // console.log(graphData)
       //make a for loop from 0 to 9
       let cityData = []
       dataFiles = files.slice(0, 10)
@@ -377,12 +377,12 @@ function renderGraph(dateInquiring) {
         if(getSelected() == "actual_mean_temp&actual_precipitation") {
           tempData = row.actual_mean_temp
           precipData = row.actual_precipitation
-          console.log("actual haha")
+          // console.log("actual haha")
           selectedchoice = "actual"
         } else if (getSelected() == "record_max_temp&record_precipitation") {
           tempData = row.record_max_temp
           precipData = row.record_precipitation
-          console.log("record")
+          // console.log("record")
           selectedchoice = "record"
         }
 
@@ -400,13 +400,13 @@ function renderGraph(dateInquiring) {
         })
       })
 
-      console.log("citydata", cityData)
+      // console.log("citydata", cityData)
 
       // get the city names and the tempearture between 25 to 75 percentile
       let q1 = d3.quantile(cityData, 0.25, function(d){return d[0]})
       
       let q3 = d3.quantile(cityData, 0.75, function(d){return d[0]})
-      console.log(q1, q3)
+      // console.log(q1, q3)
       
       
 
@@ -416,11 +416,11 @@ function renderGraph(dateInquiring) {
       });
       var cityNames = filteredData.map(function(d) { return d[1]; });
       var temperatures = filteredData.map(function(d) { return d[0]; });
-      console.log(cityNames)
-      console.log(temperatures)
+      // console.log(cityNames)
+      // console.log(temperatures)
 
       graphData.links.push( DPConnectNode(filteredData))
-      console.log(graphData)
+      // console.log(graphData)
 
       // get rid of the undefined in graphData.links
       graphData.links = graphData.links.filter(function(d){return d != undefined})
@@ -429,9 +429,9 @@ function renderGraph(dateInquiring) {
       let offsetUnit = window.innerWidth/100
       let relativeTo50 = meanTemp - 50
       let offset = relativeTo50 * offsetUnit
-      console.log("meanTemp", meanTemp)
+      // console.log("meanTemp", meanTemp)
       d3.select("#temp-display").text("Mean temperatue: " +meanTemp + " °F" )
-      console.log("offset", offset)
+      // console.log("offset", offset)
 
      
 
@@ -448,7 +448,7 @@ function renderGraph(dateInquiring) {
         nodeStrength: -20,
         linkStrength: 0.00001,
       } , 0, selectedchoice)
-      console.log(chart)
+      // console.log(chart)
       // insert chart into main div
       d3.select("#graph").remove()
       d3.select("#main").append("div").attr("id", "graph").node().appendChild(chart)
@@ -476,7 +476,7 @@ function getSelected(){
       selected = selection[i].value
     }
   }
-  console.log("selected", selected)
+  // console.log("selected", selected)
   return selected
 
 }
@@ -485,7 +485,7 @@ function getSelected(){
 let selection = document.selections.selection
 for (let i = 0; i < selection.length; i++) {
   selection[i].addEventListener("change", function(){
-    console.log("changed")
+    // console.log("changed")
     updateGraph()
 
     if(getSelected() == "actual_mean_temp&actual_precipitation") {
@@ -522,17 +522,17 @@ function getDataFromDate(date, file){
   let dateDifference = date - beginDate
   let nextyear = new Date("2015-2-12")
   dateDifference = Math.trunc(dateDifference / 86400000)
-  console.log(dateDifference)
+  // console.log(dateDifference)
   return file[dateDifference]
   
 }
 
 function DPConnectNode(filteredData){
-  console.log("filteredData at dp connect", filteredData)
+  // console.log("filteredData at dp connect", filteredData)
   //get all combinations of city name in filteredData using flatmap
   let combinations = filteredData.flatMap(function(d, index){
     let rest = filteredData.slice(index + 1)
-    console.log("rest", rest)
+    // console.log("rest", rest)
     return rest.map(function(e){
       // the bigger the difference, the less likely they are connected
       // let difference = 1/(Math.abs(d[0] - e[0])+0.2)*5
@@ -545,12 +545,12 @@ function DPConnectNode(filteredData){
       
       // return the sum of the two differences
       let difference = difference1 * difference2 * 5
-      console.log("difference", difference)
+      // console.log("difference", difference)
       return [d[1], e[1], difference]
 
     })
   })
-  console.log("combinations", combinations)
+  // console.log("combinations", combinations)
   // for each combination, push to graphData.links
   combinations.forEach(function(combination){
     graphData.links.push({source: combination[0], target: combination[1], value: combination[2]})
@@ -592,7 +592,7 @@ function ForceGraph({
   invalidation // when this promise resolves, stop the simulation
 }, offset = {}, selected = "actual") {
   // Compute values.
-  console.log("render once")
+  // console.log("render once")
   const N = d3.map(nodes, nodeId).map(intern);
   const Temp = d3.map(nodes, nodeTemp).map(intern);
   const Precipitation = d3.map(nodes, nodePrecipitation).map(intern);
@@ -621,7 +621,7 @@ function ForceGraph({
   const forceNode = d3.forceManyBody();
   const forceLink = d3.forceLink(links).id(({index: i}) => N[i]);
 
-  console.log("forceLink", forceLink)
+  // console.log("forceLink", forceLink)
 
   if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
   if (linkStrength !== undefined) forceLink.strength(linkStrength);
@@ -632,7 +632,7 @@ function ForceGraph({
 
     forceX = d3.forceX().x(d => {
       const temp = TEMP[d.index];
-      console.log("temp", TEMP)
+      // console.log("temp", TEMP)
       const scale = d3.scaleLinear().domain([1, 99]).range([-width/2+10, width/2-10]);
       return scale(temp);
     });
@@ -640,15 +640,15 @@ function ForceGraph({
     
     forceY = d3.forceY().y(d => {
       const precip = PRECIPITATION[d.index];
-      console.log("precip", precip)
-      console.log(height)
+      // console.log("precip", precip)
+      // console.log(height)
       const scale = d3.scaleLinear().domain([4.5, 0]).range([-height/2, height/3]);
       return scale(precip);
     });
   } else if (selected == "record") {
     forceX = d3.forceX().x(d => {
       const temp = TEMP[d.index];
-      console.log("temp", TEMP)
+      // console.log("temp", TEMP)
       const scale = d3.scaleLinear().domain([1, 200]).range([-width/2+10, width/2-10]);
       return scale(temp);
     });
@@ -656,8 +656,8 @@ function ForceGraph({
     
     forceY = d3.forceY().y(d => {
       const precip = PRECIPITATION[d.index];
-      console.log("precip", precip)
-      console.log(height)
+      // console.log("precip", precip)
+      // console.log(height)
       const scale = d3.scaleLinear().domain([13, 0]).range([-height/2, height/3]);
       return scale(precip);
     });
@@ -701,7 +701,7 @@ function ForceGraph({
   if (G) node.attr("fill", ({index: i}) => color(G[i]));
   if (T) node.append("title").text(({index: i}) => `${T[i]}\nTemperature: ${TEMP[i]}\nPrecipitation: ${PRECIPITATION[i]}` );
   // nPrecipitation: ${PRECIPITATION[i]}
-  console.log("T",  T)
+  // console.log("T",  T)
 
   // Handle invalidation.
   if (invalidation != null) invalidation.then(() => simulation.stop());
