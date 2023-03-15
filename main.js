@@ -337,23 +337,6 @@ function renderGraph(dateInquiring) {
       d3.csv("Weather Data/PHX.csv"),
       d3.csv("Weather Data/cities-gps.csv"),
   ]).then(function(files) {
-      // find the minimum and maximum temperature in the data
-      let minTemp = Infinity
-      let maxTemp = -Infinity
-      files.forEach(function(file){
-        file.forEach(function(data){
-          if (data.actual_precipitation < minTemp) {
-            minTemp = data.actual_precipitation
-          }
-          if (data.actual_precipitation > maxTemp) {
-            maxTemp = data.actual_precipitation
-          }
-        })
-      })
-      // console.log("min, max", minTemp, maxTemp)
-
-
-
       graphDataClear()
       // console.log(files)
       //for each City Name ABR in files[10], we add them in to graphData.nodes
@@ -491,11 +474,11 @@ for (let i = 0; i < selection.length; i++) {
     if(getSelected() == "actual_mean_temp&actual_precipitation") {
       let background = d3.select("#background")
       //for every text element in background, we make the text value to a number, add 1 to it, and then make it a string again
-      background.selectAll("text").data(function(d){return d3.range(0, 11)}).text(function(d){return (d*10).toString()})
+      background.selectAll("text").data(function(d){return d3.range(0, 11)}).text(function(d){return (d*10).toString() + "°F"})
     } else if (getSelected() == "record_max_temp&record_precipitation") {
       let background = d3.select("#background")
       //for every text element in background, we make the text value to a number, add 1 to it, and then make it a string again
-      background.selectAll("text").data(function(d){return d3.range(0, 11)}).text(function(d){return (d*20).toString()})
+      background.selectAll("text").data(function(d){return d3.range(0, 11)}).text(function(d){return (d*20).toString() + "°F"})
     }
     
   
